@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import axios from 'axios';
 import { Line } from 'react-chartjs-2';
+import Image from 'next/image';
 import 'chart.js/auto';
 
 const CoinPage = () => {
@@ -40,7 +41,13 @@ const CoinPage = () => {
         <div className="bg-white p-8 max-w-6xl mx-auto">
             <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center">
-                    <img src={coin.image.small} alt={coin.name} className="w-8 h-8 mr-2" />
+                    <Image
+                        src={coin.image.small}
+                        alt={coin.name}
+                        width={32}
+                        height={32}
+                        className="mr-2"
+                    />
                     <h1 className="text-2xl font-bold">{coin.name}</h1>
                     <span className="ml-2 text-gray-500">{coin.symbol.toUpperCase()}</span>
                 </div>
