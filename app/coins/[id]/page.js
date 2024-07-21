@@ -79,11 +79,11 @@ const CoinPage = () => {
                     <h2 className="text-xl font-bold mb-4">Performance</h2>
                     <div className="space-y-2">
                         <div className="flex justify-between">
-                            <span>Today's Low</span>
+                        <p>It&apos;s a great day!</p>
                             <span>{coin.market_data.low_24h.usd.toLocaleString()}</span>
                         </div>
                         <div className="flex justify-between">
-                            <span>Today's High</span>
+                            <span>Today High</span>
                             <span>{coin.market_data.high_24h.usd.toLocaleString()}</span>
                         </div>
                     </div>
