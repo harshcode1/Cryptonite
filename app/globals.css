@@ -31,3 +31,24 @@ body {
     text-wrap: balance;
   }
 }
+
+/* globals.css */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th, .table td {
+  padding: 8px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+.table th {
+  background-color: #f2f2f2;
+}
+
+.table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
