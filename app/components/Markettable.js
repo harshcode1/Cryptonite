@@ -28,7 +28,7 @@ export default function Markettable({ coins }) {
                 <a className="text-blue-500 hover:underline">{coin.name}</a>
               </Link>
             </td>
-            <td className="py-2 px-4 border-b text-left">{coin.symbol}</td>
+            <td className="py-2 px-4 border-b text-left">{coin.symbol.toUpperCase()}</td>
             <td className="py-2 px-4 border-b text-left">${coin.current_price.toFixed(2)}</td>
             <td className={`py-2 px-4 border-b text-left ${coin.price_change_percentage_24h >= 0 ? 'text-green-500' : 'text-red-500'}`}>
               {coin.price_change_percentage_24h.toFixed(2)}%

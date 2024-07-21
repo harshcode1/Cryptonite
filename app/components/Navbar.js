@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image'; // Using Next.js Image component for optimized image handling
+import Image from 'next/image'; 
 import Link from 'next/link';
 
 const Navbar = () => {
@@ -28,18 +28,18 @@ const Navbar = () => {
                         width={40} 
                         height={40} 
                         className="rounded-full"
-                        style={{ width: '40px', height: '40px', objectFit: 'contain' }} // Ensuring the aspect ratio is preserved
+                        style={{ width: '40px', height: '40px', objectFit: 'contain' }}
                     />
-                    <Link href="/" className="ml-3 text-xl">Cryptonite</Link>
+                    <Link href="/" className="ml-3 text-xl font-bold">Cryptonite</Link>
                 </div>
                 <nav className="md:ml-auto flex flex-wrap items-center text-base justify-center">
-                    <Link href="/ProductsPage" className={`mr-5 hover:text-${darkMode ? 'white' : 'gray-900'}`}>Products</Link>
-                    <a className={`mr-5 hover:text-${darkMode ? 'white' : 'gray-900'}`}>Third Link</a>
-                    <a className={`mr-5 hover:text-${darkMode ? 'white' : 'gray-900'}`}>Fourth Link</a>
+                    <Link href="/ProductsPage" className={`mr-5 hover:text-${darkMode ? 'gray-300' : 'blue-600'}`}>Products</Link>
+                    <Link href="/AboutPage" className={`mr-5 hover:text-${darkMode ? 'gray-300' : 'blue-600'}`}>About CryptoCurrency</Link>
+                    <a className={`mr-5 hover:text-${darkMode ? 'gray-300' : 'blue-600'}`}>Fourth Link</a>
                 </nav>
                 <button 
                     onClick={toggleDarkMode} 
-                    className="inline-flex items-center bg-black border-0 py-1 px-3 focus:outline-none hover:bg-gray-200 dark:hover:bg-gray-700 rounded text-base mt-4 text-white md:mt-0"
+                    className="inline-flex items-center bg-gray-800 border-0 py-1 px-3 focus:outline-none hover:bg-gray-700 rounded text-base mt-4 text-white md:mt-0"
                 >
                     {darkMode ? 'Light Mode' : 'Dark Mode'}
                     <svg fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" className="w-4 h-4 ml-1" viewBox="0 0 24 24">
