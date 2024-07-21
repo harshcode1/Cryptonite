@@ -37,7 +37,6 @@ export default function Home() {
           },
         });
 
-        console.log('API Response:', response.data); // Log the response for debugging
 
         const data = response.data;
         setCoins(data);
@@ -74,7 +73,7 @@ export default function Home() {
             {chartData.labels.length > 0 && chartData.datasets[0].data.length > 0 ? (
               <Chart data={chartData} />
             ) : (
-              <p>Loading chart data...</p>
+              <p className='text-black'>Loading chart data...</p>
             )}
           </div>
           <Sidebar title="Watchlist" coins={coins} />

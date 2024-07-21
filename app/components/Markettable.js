@@ -24,8 +24,8 @@ export default function Markettable({ coins }) {
         {coins.map((coin) => (
           <tr key={coin.id}>
             <td className="py-2 px-4 border-b text-left">
-              <Link href={`/coin/${coin.id}`} legacyBehavior>
-                <a className="text-blue-500 hover:underline">{coin.name}</a>
+              <Link href={`/coins/${coin.id}`} >
+                <p className="text-blue-500 hover:underline">{coin.name}</p>
               </Link>
             </td>
             <td className="py-2 px-4 border-b text-left">{coin.symbol.toUpperCase()}</td>

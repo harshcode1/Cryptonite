@@ -35,7 +35,6 @@ const Navbar = () => {
                 <nav className="md:ml-auto flex flex-wrap items-center text-base justify-center">
                     <Link href="/ProductsPage" className={`mr-5 hover:text-${darkMode ? 'gray-300' : 'blue-600'}`}>Products</Link>
                     <Link href="/AboutPage" className={`mr-5 hover:text-${darkMode ? 'gray-300' : 'blue-600'}`}>About CryptoCurrency</Link>
-                    <a className={`mr-5 hover:text-${darkMode ? 'gray-300' : 'blue-600'}`}>Fourth Link</a>
                 </nav>
                 <button 
                     onClick={toggleDarkMode} 
