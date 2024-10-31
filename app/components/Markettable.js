@@ -29,7 +29,7 @@ const MarketTable = ({ coins }) => {
             <tr key={coin.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
               <td className="table-cell">{index + 1}</td>
               <td className="table-cell">
-                <Link href={`/coins/${coin.id}`} className="flex items-center">
+                <Link href={`/coins/${coin.id}`} className="flex items-center hover:underline hover:text-blue-600 transition duration-200 ease-in-out">
                   <Image
                     src={coin.image}
                     alt={coin.name}
