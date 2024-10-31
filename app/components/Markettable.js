@@ -1,42 +1,73 @@
-import React from "react";
+import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 
-export default function Markettable({ coins }) {
+const MarketTable = ({ coins }) => {
+  const formatMarketCap = (marketCap) => {
+    if (marketCap >= 1e12) return `$${(marketCap / 1e12).toFixed(2)}T`;
+    if (marketCap >= 1e9) return `$${(marketCap / 1e9).toFixed(2)}B`;
+    if (marketCap >= 1e6) return `$${(marketCap / 1e6).toFixed(2)}M`;
+    return `$${marketCap.toLocaleString()}`;
+  };
+
   return (
-    <table className="min-w-full text-black bg-white table-fixed border-collapse">
-      <colgroup>
-        <col style={{ width: '25%' }} />
-        <col style={{ width: '15%' }} />
-        <col style={{ width: '20%' }} />
-        <col style={{ width: '20%' }} />
-        <col style={{ width: '20%' }} />
-      </colgroup>
-      <thead>
-        <tr>
-          <th className="py-2 px-4 border-b text-left">Token</th>
-          <th className="py-2 px-4 border-b text-left">Symbol</th>
-          <th className="py-2 px-4 border-b text-left">Last Price</th>
-          <th className="py-2 px-4 border-b text-left">24H Change</th>
-          <th className="py-2 px-4 border-b text-left">Market Cap</th>
-        </tr>
-      </thead>
-      <tbody>
-        {coins.map((coin) => (
-          <tr key={coin.id}>
-            <td className="py-2 px-4 border-b text-left">
-              <Link href={`/coins/${coin.id}`} >
-                <p className="text-blue-500 hover:underline">{coin.name}</p>
-              </Link>
-            </td>
-            <td className="py-2 px-4 border-b text-left">{coin.symbol.toUpperCase()}</td>
-            <td className="py-2 px-4 border-b text-left">${coin.current_price.toFixed(2)}</td>
-            <td className={`py-2 px-4 border-b text-left ${coin.price_change_percentage_24h >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-              {coin.price_change_percentage_24h.toFixed(2)}%
-            </td>
-            <td className="py-2 px-4 border-b text-left">${coin.market_cap.toLocaleString()}</td>
+    <div className="overflow-x-auto rounded-lg shadow">
+      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead className="bg-gray-50 dark:bg-gray-800">
+          <tr>
+            <th scope="col" className="table-header">#</th>
+            <th scope="col" className="table-header">Name</th>
+            <th scope="col" className="table-header">Price</th>
+            <th scope="col" className="table-header">24h %</th>
+            <th scope="col" className="table-header">Market Cap</th>
+            <th scope="col" className="table-header">Volume(24h)</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-700">
+          {coins.map((coin, index) => (
+            <tr key={coin.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+              <td className="table-cell">{index + 1}</td>
+              <td className="table-cell">
+                <Link href={`/coins/${coin.id}`} className="flex items-center">
+                  <Image
+                    src={coin.image}
+                    alt={coin.name}
+                    width={24}
+                    height={24}
+                    className="rounded-full"
+                  />
+                  <span className="ml-2 font-medium">{coin.name}</span>
+                  <span className="ml-2 text-gray-500 text-sm">{coin.symbol.toUpperCase()}</span>
+                </Link>
+              </td>
+              <td className="table-cell">
+                ${coin.current_price.toLocaleString()}
+              </td>
+              <td className="table-cell">
+                <span className={`flex items-center ${
+                  coin.price_change_percentage_24h > 0 ? 'text-green-500' : 'text-red-500'
+                }`}>
+                  {coin.price_change_percentage_24h > 0 ? (
+                    <TrendingUp className="h-4 w-4 mr-1" />
+                  ) : (
+                    <TrendingDown className="h-4 w-4 mr-1" />
+                  )}
+                  {Math.abs(coin.price_change_percentage_24h).toFixed(2)}%
+                </span>
+              </td>
+              <td className="table-cell">
+                {formatMarketCap(coin.market_cap)}
+              </td>
+              <td className="table-cell">
+                ${coin.total_volume.toLocaleString()}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
-}
+};
+
+export default MarketTable;
