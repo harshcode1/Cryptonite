@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  output: 'standalone', // For optimal deploy-time bundling
   images: {
     remotePatterns: [
       {
@@ -8,15 +9,12 @@ const nextConfig = {
         hostname: 'coin-images.coingecko.com',
         pathname: '/**',
       },
-    ],
-  },
-  async rewrites() {
-    return [
       {
-        source: '/api/:path*',
-        destination: 'https://api.coingecko.com/api/v3/:path*',
+        protocol: 'https',
+        hostname: 'assets.coingecko.com',
+        pathname: '/**',
       },
-    ];
+    ],
   },
 };
 

@@ -13,9 +13,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={inter.className} style={{ display: "flex", flexDirection: "column", minHeight: "100vh", margin: 0 }}>
+      <body className={`${inter.className} bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 min-h-screen flex flex-col`}>
         <Navbar />
-        <main style={{ flex: 1, backgroundColor: "white" }}>
+        <main className="flex-1">
           {children}
         </main>
         <Footer />

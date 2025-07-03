@@ -2,35 +2,176 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer components {
-  .nav-link {
-    @apply text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium
-    dark:text-gray-200 dark:hover:text-blue-400 transition-colors duration-200;
+@layer components {  .nav-link {
+    @apply text-slate-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium
+    transition-colors duration-200;
   }
 
+  .nav-link-modern {
+    @apply flex items-center gap-2 text-white/80 hover:text-white px-4 py-2 rounded-xl text-sm font-medium
+    bg-white/5 hover:bg-white/10 transition-all duration-300 backdrop-blur-sm border border-white/10
+    hover:border-white/20 hover:shadow-lg;
+  }
   .mobile-nav-link {
-    @apply block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600
-    hover:bg-gray-100 dark:text-gray-200 dark:hover:text-blue-400 dark:hover:bg-gray-800;
+    @apply block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-blue-600
+    hover:bg-slate-100 transition-all duration-300;
   }
 
+  .mobile-nav-link-modern {
+    @apply flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium text-white/80 hover:text-white
+    hover:bg-white/10 transition-all duration-300 backdrop-blur-sm border border-white/5 hover:border-white/20;
+  }
   .table-header {
-    @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider
-    dark:text-gray-400;
+    @apply px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider;
+  }  .table-cell {
+    @apply px-6 py-4 whitespace-nowrap text-sm text-white;
+  }  .pagination-button {
+    @apply relative inline-flex items-center px-4 py-2 border border-slate-600 text-sm
+    font-medium rounded-md text-white bg-slate-800 hover:bg-slate-700 disabled:opacity-50
+    disabled:cursor-not-allowed transition-all duration-200;
   }
-
-  .table-cell {
-    @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200;
-  }
-
-  .pagination-button {
-    @apply relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm
-    font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50
-    disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200;
-  }
-
   .pagination-number {
     @apply relative inline-flex items-center px-4 py-2 border text-sm font-medium
     rounded-md focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-500
-    focus:border-blue-500 dark:border-gray-700;
+    focus:border-blue-500 transition-all duration-200;
+  }
+
+  /* Glassmorphism Cards */
+  .glass-card {
+    @apply bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl rounded-2xl;
+  }
+
+  .glass-card-dark {
+    @apply bg-slate-900/80 backdrop-blur-md border border-white/10 shadow-2xl rounded-2xl;
+  }
+
+  /* Custom Scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-slate-800 rounded-full;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-blue-500 rounded-full hover:bg-blue-400;
+  }
+
+  /* Animated Gradient Text */
+  .gradient-text {
+    @apply bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent;
+    animation: gradient-x 3s ease infinite;
+    background-size: 200% 200%;
+  }
+
+  @keyframes gradient-x {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  /* Floating Animation */
+  .float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+
+  /* Pulse Effect */
+  .pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Glow Effect */
+  .glow {
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
+  }
+
+  .glow-green {
+    box-shadow: 0 0 30px rgba(34, 197, 94, 0.5);
+  }
+
+  .glow-purple {
+    box-shadow: 0 0 30px rgba(147, 51, 234, 0.5);
+  }
+
+  /* Modern Button Styles */
+  .btn-modern {
+    @apply px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-300 
+    bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 
+    hover:to-purple-700 hover:scale-105 hover:shadow-2xl backdrop-blur-sm;
+  }
+
+  .btn-modern-outline {
+    @apply px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-300 
+    border-2 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white 
+    hover:scale-105 hover:shadow-2xl backdrop-blur-sm;
+  }
+
+  /* Text Contrast Utilities */
+  .text-contrast-high {
+    color: #f8fafc; /* slate-50 */
+  }
+  
+  .text-contrast-medium {
+    color: #cbd5e1; /* slate-300 */
+  }
+  
+  .text-contrast-low {
+    color: #94a3b8; /* slate-400 */
+  }
+
+  /* Ensure proper contrast for all card content */
+  .glass-card .text-white {
+    color: #f8fafc !important;
+  }
+  
+  .glass-card .text-gray-300 {
+    color: #cbd5e1 !important;
+  }
+  
+  .glass-card .text-gray-400 {
+    color: #94a3b8 !important;
+  }
+
+  /* Dark card backgrounds for better contrast */
+  .card-dark-bg {
+    background: rgba(15, 23, 42, 0.9); /* slate-900 with opacity */
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Force dark theme and prevent white backgrounds */
+  body {
+    background: linear-gradient(135deg, #0f172a 0%, #581c87 50%, #0f172a 100%) !important;
+    color: #f8fafc !important;
+  }
+  
+  /* Override any accidental white backgrounds */
+  .bg-white {
+    background-color: rgba(15, 23, 42, 0.9) !important;
+  }
+  
+  /* Ensure text is always visible */
+  * {
+    color: inherit;
+  }
+  
+  /* Fix any text that might be too dark */
+  .text-black,
+  .text-gray-900,
+  .text-gray-800 {
+    color: #f8fafc !important;
   }
 }
