@@ -26,6 +26,20 @@ const BuyPage = () => {
   useEffect(() => {
     fetchAvailableCoins();
     loadWalletBalance();
+
+    // Listen for localStorage changes
+    const handleStorageChange = (e) => {
+      if (e.key === 'walletBalance') {
+        const newBalance = parseFloat(localStorage.getItem('walletBalance') || '0');
+        setWalletBalance(newBalance);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   const loadWalletBalance = () => {
@@ -200,6 +214,11 @@ const BuyPage = () => {
       const newBalance = walletBalance - purchaseAmount;
       localStorage.setItem('walletBalance', newBalance.toString());
       setWalletBalance(newBalance);
+      
+      // Dispatch custom event to notify navbar and other components
+      window.dispatchEvent(new CustomEvent('walletUpdated', {
+        detail: { newBalance: newBalance }
+      }));
 
       // Save purchase to holdings
       const existingHoldings = JSON.parse(localStorage.getItem('holdings') || '[]');

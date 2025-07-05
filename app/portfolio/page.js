@@ -27,6 +27,7 @@ const Portfolio = () => {
     totalProfitLoss: 0,
     totalProfitLossPercent: 0
   });
+
   useEffect(() => {
     loadPortfolioData();
     
@@ -53,6 +54,7 @@ const Portfolio = () => {
 
     try {
       const coinIds = holdings.map(holding => holding.coinId).join(',');
+      console.log('🔍 Fetching prices for coin IDs:', coinIds);
       
       const response = await axios.get(`/api/price`, {
         params: {
@@ -62,15 +64,53 @@ const Portfolio = () => {
         }
       });
       
+      console.log('📊 Price API response:', response.data);
+      
       // Check if response data is valid
       if (response.data && typeof response.data === 'object') {
-        setCurrentPrices(response.data);
-        console.log('💰 Price data loaded for', Object.keys(response.data).length, 'coins');
+        // Validate that we got prices for all requested coins
+        const requestedCoins = coinIds.split(',');
+        const receivedCoins = Object.keys(response.data);
+        
+        console.log('📋 Requested coins:', requestedCoins);
+        console.log('📋 Received prices for:', receivedCoins);
+        
+        // Check for missing prices and add fallback prices from coins.json if available
+        const enhancedPrices = { ...response.data };
+        
+        for (const coinId of requestedCoins) {
+          if (!enhancedPrices[coinId]) {
+            console.warn(`⚠️ Missing price for ${coinId}, attempting fallback from coins data`);
+            
+            // Try to get price from the coins.json data via our coins API
+            try {
+              const coinsResponse = await axios.get('/api/coins', {
+                params: { per_page: 100 }
+              });
+              
+              const coinsData = coinsResponse.data.data || coinsResponse.data;
+              const coinData = coinsData.find(coin => coin.id === coinId);
+              
+              if (coinData && coinData.current_price) {
+                enhancedPrices[coinId] = {
+                  usd: coinData.current_price,
+                  usd_24h_change: coinData.price_change_percentage_24h || 0
+                };
+                console.log(`✅ Found fallback price for ${coinId}: $${coinData.current_price}`);
+              }
+            } catch (fallbackError) {
+              console.error(`❌ Failed to get fallback price for ${coinId}:`, fallbackError);
+            }
+          }
+        }
+        
+        setCurrentPrices(enhancedPrices);
+        console.log('💰 Final price data loaded for', Object.keys(enhancedPrices).length, 'coins');
       } else {
         console.warn('⚠️ Invalid price data received from API');
       }
     } catch (error) {
-      console.error('Error fetching current prices:', error);
+      console.error('❌ Error fetching current prices:', error);
       
       // Don't update currentPrices if API fails - keep existing data
       console.log('⚠️ Using existing price data due to API error');
@@ -113,10 +153,14 @@ const Portfolio = () => {
     const savedHoldings = localStorage.getItem('holdings');
     const savedBalance = localStorage.getItem('walletBalance');
     
+    console.log('📁 Raw holdings from localStorage:', savedHoldings);
+    
     let holdings = savedHoldings ? JSON.parse(savedHoldings) : [];
     
     // Normalize holdings data structure (handle both old and new formats)
     holdings = holdings.map(holding => {
+      console.log('🔧 Processing holding:', holding);
+      
       const normalized = {
         ...holding,
         name: holding.name || holding.coinName || 'Unknown',
@@ -129,6 +173,7 @@ const Portfolio = () => {
       delete normalized.coinSymbol;
       delete normalized.priceAtBuy;
       
+      console.log('✅ Normalized holding:', normalized);
       return normalized;
     });
     
@@ -147,7 +192,10 @@ const Portfolio = () => {
       localStorage.setItem('holdings', JSON.stringify(holdings));
     }
     
-    console.log('📊 Loaded', holdings.length, 'valid holdings');
+    console.log('📊 Loaded', holdings.length, 'valid holdings:');
+    holdings.forEach((holding, index) => {
+      console.log(`  ${index + 1}. ${holding.name} (${holding.coinId}): ${holding.quantity} @ $${holding.avgBuyPrice}`);
+    });
     
     setHoldings(holdings);
     setWalletBalance(savedBalance ? parseFloat(savedBalance) : 100000);
@@ -177,6 +225,34 @@ const Portfolio = () => {
     loadPortfolioData();
   };
 
+  const forceRefreshPrices = async () => {
+    if (holdings.length === 0) return;
+    
+    try {
+      const coinIds = holdings.map(holding => holding.coinId).join(',');
+      console.log('🔥 FORCE REFRESH: Fetching fresh prices for:', coinIds);
+      
+      // Add a cache-busting parameter
+      const response = await axios.get(`/api/price`, {
+        params: {
+          ids: coinIds,
+          vs_currencies: 'usd',
+          include_24hr_change: true,
+          _t: Date.now() // Cache buster
+        }
+      });
+      
+      console.log('🔥 FORCE REFRESH: Raw API response:', response.data);
+      
+      if (response.data && typeof response.data === 'object') {
+        setCurrentPrices(response.data);
+        console.log('🔥 FORCE REFRESH: Updated current prices');
+      }
+    } catch (error) {
+      console.error('🔥 FORCE REFRESH: Error:', error);
+    }
+  };
+
   const resetPortfolio = () => {
     if (window.confirm('Are you sure you want to reset your entire portfolio? This action cannot be undone.')) {
       localStorage.removeItem('holdings');
@@ -190,6 +266,11 @@ const Portfolio = () => {
         totalProfitLoss: 0,
         totalProfitLossPercent: 0
       });
+      
+      // Dispatch custom event to notify navbar
+      window.dispatchEvent(new CustomEvent('walletUpdated', {
+        detail: { newBalance: 100000 }
+      }));
     }
   };
   const exportPortfolio = () => {
@@ -332,6 +413,42 @@ const Portfolio = () => {
           >
             <RefreshCw className="h-5 w-5" />
             Refresh Prices
+          </button>
+          
+          <button
+            onClick={forceRefreshPrices}
+            className="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-colors duration-300"
+          >
+            <RefreshCw className="h-5 w-5" />
+            Force Refresh Prices
+          </button>
+          
+          <button
+            onClick={() => {
+              console.log('🔍 DEBUG INFO:');
+              console.log('Holdings:', holdings);
+              console.log('Current Prices:', currentPrices);
+              console.log('LocalStorage Holdings:', localStorage.getItem('holdings'));
+              console.log('LocalStorage Balance:', localStorage.getItem('walletBalance'));
+              alert('Check console for debug info');
+            }}
+            className="flex items-center gap-2 px-6 py-3 bg-yellow-600 hover:bg-yellow-700 text-white rounded-xl transition-colors duration-300"
+          >
+            🐛 Debug Info
+          </button>
+          
+          <button
+            onClick={() => {
+              if (window.confirm('Clear all holdings for testing? (keeps wallet balance)')) {
+                localStorage.removeItem('holdings');
+                setHoldings([]);
+                setCurrentPrices({});
+                console.log('🧹 Holdings cleared for testing');
+              }
+            }}
+            className="flex items-center gap-2 px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-xl transition-colors duration-300"
+          >
+            🧹 Clear Holdings (Test)
           </button>
           
           {holdings.length > 0 && (

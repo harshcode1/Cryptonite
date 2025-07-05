@@ -14,17 +14,45 @@ const Navbar = () => {
     };
     window.addEventListener('scroll', handleScroll);
     
-    // Initialize wallet balance from localStorage
-    const savedBalance = localStorage.getItem('walletBalance');
-    if (savedBalance) {
-      setWalletBalance(parseFloat(savedBalance));
-    } else {
-      // Set initial balance of ₹100,000
-      localStorage.setItem('walletBalance', '100000');
-      setWalletBalance(100000);
-    }
+    // Function to update wallet balance
+    const updateWalletBalance = () => {
+      const savedBalance = localStorage.getItem('walletBalance');
+      if (savedBalance) {
+        setWalletBalance(parseFloat(savedBalance));
+      } else {
+        // Set initial balance of ₹100,000
+        localStorage.setItem('walletBalance', '100000');
+        setWalletBalance(100000);
+      }
+    };
     
-    return () => window.removeEventListener('scroll', handleScroll);
+    // Initialize wallet balance
+    updateWalletBalance();
+    
+    // Listen for localStorage changes (from other tabs or components)
+    const handleStorageChange = (e) => {
+      if (e.key === 'walletBalance') {
+        updateWalletBalance();
+      }
+    };
+    
+    // Listen for custom wallet update events
+    const handleWalletUpdate = () => {
+      updateWalletBalance();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('walletUpdated', handleWalletUpdate);
+    
+    // Also check for balance changes every 5 seconds
+    const balanceCheckInterval = setInterval(updateWalletBalance, 5000);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('walletUpdated', handleWalletUpdate);
+      clearInterval(balanceCheckInterval);
+    };
   }, []);
 
   const formatCurrency = (amount) => {
