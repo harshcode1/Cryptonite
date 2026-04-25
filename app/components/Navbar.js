@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Menu, X, TrendingUp, Zap, BarChart3, Globe, ShoppingCart, Wallet } from 'lucide-react';
+import { Menu, X, TrendingUp, Zap } from 'lucide-react';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -13,45 +13,30 @@ const Navbar = () => {
       setScrolled(window.scrollY > 50);
     };
     window.addEventListener('scroll', handleScroll);
-    
-    // Function to update wallet balance
+
     const updateWalletBalance = () => {
       const savedBalance = localStorage.getItem('walletBalance');
       if (savedBalance) {
         setWalletBalance(parseFloat(savedBalance));
       } else {
-        // Set initial balance of ₹100,000
         localStorage.setItem('walletBalance', '100000');
         setWalletBalance(100000);
       }
     };
-    
-    // Initialize wallet balance
+
     updateWalletBalance();
-    
-    // Listen for localStorage changes (from other tabs or components)
+
     const handleStorageChange = (e) => {
       if (e.key === 'walletBalance') {
         updateWalletBalance();
       }
     };
-    
-    // Listen for custom wallet update events
-    const handleWalletUpdate = () => {
-      updateWalletBalance();
-    };
-    
+
     window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('walletUpdated', handleWalletUpdate);
-    
-    // Also check for balance changes every 5 seconds
-    const balanceCheckInterval = setInterval(updateWalletBalance, 5000);
-    
+
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('walletUpdated', handleWalletUpdate);
-      clearInterval(balanceCheckInterval);
     };
   }, []);
 
@@ -65,11 +50,13 @@ const Navbar = () => {
   };
 
   return (
-    <nav className={`sticky top-0 z-50 transition-all duration-300 ${
-      scrolled 
-        ? 'bg-slate-900/80 backdrop-blur-xl border-b border-white/10 shadow-2xl' 
-        : 'bg-slate-900/60 backdrop-blur-md'
-    }`}>
+    <nav
+      className={`sticky top-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? 'bg-slate-900/80 backdrop-blur-xl border-b border-white/10 shadow-2xl'
+          : 'bg-slate-900/60 backdrop-blur-md'
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
@@ -84,71 +71,71 @@ const Navbar = () => {
                 Cryptonite
               </span>
             </Link>
-          </div>          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            <Link href="/ProductsPage" className="nav-link-modern">
-              <TrendingUp className="h-4 w-4" />
+          </div>
+          <div className="hidden md:flex items-center gap-8">
+            <Link
+              href="/ProductsPage"
+              className="text-white/80 hover:text-white transition-colors duration-300 text-lg"
+            >
               Markets
-            </Link>            <Link href="/AboutPage" className="nav-link-modern">
-              <Globe className="h-4 w-4" />
+            </Link>
+            <Link
+              href="/AboutPage"
+              className="text-white/80 hover:text-white transition-colors duration-300 text-lg"
+            >
               About
             </Link>
-            <Link href="/buy" className="nav-link-modern">
-              <ShoppingCart className="h-4 w-4" />
+            <Link
+              href="/buy"
+              className="px-5 py-2 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 transition-all duration-300 text-lg font-semibold"
+            >
               Buy Crypto
-            </Link>            <Link href="/portfolio" className="nav-link-modern">
-              <BarChart3 className="h-4 w-4" />
+            </Link>
+            <Link
+              href="/portfolio"
+              className="text-white/80 hover:text-white transition-colors duration-300 text-lg"
+            >
               Holdings
             </Link>
-            
-            {/* Wallet Balance */}
-            <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl border border-green-500/20">
-              <Wallet className="h-4 w-4 text-white" />
-              <span className="text-white font-medium">{formatCurrency(walletBalance)}</span>
-            </div>
           </div>
-
-          {/* Mobile Navigation */}
-          <div className="md:hidden">
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-300 backdrop-blur-sm border border-white/10"
-            >
-              {isMenuOpen ? (
-                <X className="h-6 w-6 text-white" />
-              ) : (
-                <Menu className="h-6 w-6 text-white" />
-              )}
-            </button>
-          </div>
-        </div>        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-slate-900/90 backdrop-blur-xl rounded-xl mt-2 border border-white/10">
-              <Link href="/ProductsPage" className="mobile-nav-link-modern">
-                <TrendingUp className="h-4 w-4" />
-                Markets
-              </Link>              <Link href="/AboutPage" className="mobile-nav-link-modern">
-                <Globe className="h-4 w-4" />
-                About
-              </Link>
-              <Link href="/buy" className="mobile-nav-link-modern">
-                <ShoppingCart className="h-4 w-4" />
-                Buy Crypto
-              </Link>              <Link href="/portfolio" className="mobile-nav-link-modern">
-                <BarChart3 className="h-4 w-4" />
-                Holdings
-              </Link>
-              
-              {/* Mobile Wallet Balance */}
-              <div className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl border border-green-500/20 mt-2">
-                <Wallet className="h-4 w-4 text-white" />
-                <span className="text-white font-medium">{formatCurrency(walletBalance)}</span>
-              </div>
-            </div>
-          </div>
-        )}
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="md:hidden p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-all duration-300"
+          >
+            {isMenuOpen ? <X className="h-6 w-6 text-white" /> : <Menu className="h-6 w-6 text-white" />}
+          </button>
+        </div>
       </div>
+      {isMenuOpen && (
+        <div className="md:hidden bg-slate-900/90 backdrop-blur-md shadow-lg">
+          <div className="flex flex-col items-center gap-4 py-4">
+            <Link
+              href="/ProductsPage"
+              className="text-white/80 hover:text-white transition-colors duration-300 text-lg"
+            >
+              Markets
+            </Link>
+            <Link
+              href="/AboutPage"
+              className="text-white/80 hover:text-white transition-colors duration-300 text-lg"
+            >
+              About
+            </Link>
+            <Link
+              href="/buy"
+              className="px-5 py-2 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 transition-all duration-300 text-lg font-semibold"
+            >
+              Buy Crypto
+            </Link>
+            <Link
+              href="/portfolio"
+              className="text-white/80 hover:text-white transition-colors duration-300 text-lg"
+            >
+              Holdings
+            </Link>
+          </div>
+        </div>
+      )}
     </nav>
   );
 };
