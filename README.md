@@ -8,11 +8,31 @@
 [![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![JavaScript](https://img.shields.io/badge/JavaScript-ES2024-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
-[![Vercel](https://img.shields.io/badge/Deployed-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://cryptonite-blush.vercel.app)
+[![Vercel](https://img.shields.io/badge/Deployed-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://cryptonite-seven-phi.vercel.app)
 
 A full-featured cryptocurrency market tracker and virtual trading simulator — live prices, interactive charts, portfolio management, and a virtual wallet. Built with real-world engineering patterns: server-side caching, rate-limit fallbacks, and a premium glassmorphism UI with 3D animations.
 
-### 🌐 [Live Demo → cryptonite-blush.vercel.app](https://cryptonite-blush.vercel.app)
+### 🌐 [Live Demo → cryptonite-seven-phi.vercel.app](https://cryptonite-seven-phi.vercel.app)
+
+</div>
+
+---
+
+## 📸 Screenshots
+
+| Home | Markets |
+|:---:|:---:|
+| ![Home](public/screenshots/home.png) | ![Markets](public/screenshots/market.png) |
+
+| Coin Detail | Buy Crypto |
+|:---:|:---:|
+| ![Coin Detail](public/screenshots/coin.png) | ![Buy](public/screenshots/buy.png) |
+
+<div align="center">
+
+| Portfolio |
+|:---:|
+| ![Portfolio](public/screenshots/portfolio.png) |
 
 </div>
 
@@ -240,6 +260,6 @@ Distributed under the **MIT License**.
 
 Built with ❤️ by [harshcode1](https://github.com/harshcode1)
 
-*Powered by [CoinGecko API](https://www.coingecko.com/en/api) · Deployed on [Vercel](https://cryptonite-blush.vercel.app)*
+*Powered by [CoinGecko API](https://www.coingecko.com/en/api) · Deployed on [Vercel](https://cryptonite-seven-phi.vercel.app)*
 
 </div>
