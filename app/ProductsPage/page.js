@@ -7,6 +7,7 @@ import Markettable from '../components/Markettable';
 import Sidebar from '../components/Sidebar';
 import Pagination from '../components/Pagination';
 import { Card, CardContent } from '../components/card';
+import TiltCard from '../components/TiltCard';
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -58,22 +59,21 @@ export default function ProductsPage() {
                 // Calculate market stats from coins data
                 const totalMarketCap = coinsData.reduce((sum, coin) => sum + (coin.market_cap || 0), 0);
                 const totalVolume = coinsData.reduce((sum, coin) => sum + (coin.total_volume || 0), 0);
-                
+
+                // Weighted average 24h change: weight each coin by its market cap
+                const weightedChange = coinsData.reduce((sum, coin) => {
+                    const weight = coin.market_cap || 0;
+                    const change = coin.price_change_percentage_24h || 0;
+                    return sum + change * weight;
+                }, 0);
+                const marketCapChange = totalMarketCap > 0 ? weightedChange / totalMarketCap : 0;
+
                 setMarketStats({
                     totalCoins: coinsData.length,
-                    totalMarketCap: totalMarketCap,
-                    totalVolume: totalVolume,
-                    marketCapChange: 0 // Will be calculated from coin data
+                    totalMarketCap,
+                    totalVolume,
+                    marketCapChange,
                 });
-                
-                // Log cache info if available
-                if (coinsResponse.data.cached) {
-                    console.log(`📦 Products page data loaded from cache (age: ${coinsResponse.data.age}s)`);
-                } else if (coinsResponse.data.fallback) {
-                    console.log('⚠️ Using fallback products data due to rate limiting');
-                } else {
-                    console.log('🆕 Fresh products data loaded');
-                }
                 
                 setLoading(false);
             } catch (error) {
@@ -123,7 +123,7 @@ export default function ProductsPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+            <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-400 mx-auto mb-4"></div>
                     <p className="text-white text-xl font-semibold">Loading market data...</p>
@@ -133,7 +133,7 @@ export default function ProductsPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <div className="min-h-screen">
             <div className="container mx-auto px-4 py-8">
                 {/* Hero Section */}
                 <div className="text-center mb-8">
@@ -147,63 +147,59 @@ export default function ProductsPage() {
 
                 {/* Market Stats */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl">
-                        <CardContent className="p-6">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-gray-300 text-sm font-medium">Total Cryptocurrencies</p>
-                                    <p className="text-2xl font-bold text-white">{marketStats.totalCoins?.toLocaleString()}</p>
-                                </div>
-                                <Activity className="h-8 w-8 text-blue-400" />
+                    <TiltCard intensity={6} className="glass-premium rounded-2xl border-neon-blue scan-card">
+                        <div className="p-6 flex items-center justify-between">
+                            <div>
+                                <p className="text-gray-400 text-xs font-medium uppercase tracking-wider mb-1">Cryptocurrencies</p>
+                                <p className="text-2xl font-black text-white">{marketStats.totalCoins?.toLocaleString()}</p>
                             </div>
-                        </CardContent>
-                    </Card>
-                    
-                    <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl">
-                        <CardContent className="p-6">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-gray-300 text-sm font-medium">Market Cap</p>
-                                    <p className="text-2xl font-bold text-white">{formatCurrency(marketStats.totalMarketCap)}</p>
-                                </div>
-                                <DollarSign className="h-8 w-8 text-green-400" />
+                            <div className="p-3 rounded-xl bg-gradient-to-br from-blue-600 to-blue-800 opacity-80">
+                                <Activity className="h-5 w-5 text-white" />
                             </div>
-                        </CardContent>
-                    </Card>
-                    
-                    <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl">
-                        <CardContent className="p-6">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-gray-300 text-sm font-medium">24h Volume</p>
-                                    <p className="text-2xl font-bold text-white">{formatCurrency(marketStats.totalVolume)}</p>
-                                </div>
-                                <BarChart3 className="h-8 w-8 text-purple-400" />
+                        </div>
+                    </TiltCard>
+
+                    <TiltCard intensity={6} className="glass-premium rounded-2xl border-neon-green scan-card">
+                        <div className="p-6 flex items-center justify-between">
+                            <div>
+                                <p className="text-gray-400 text-xs font-medium uppercase tracking-wider mb-1">Market Cap</p>
+                                <p className="text-2xl font-black text-white">{formatCurrency(marketStats.totalMarketCap)}</p>
                             </div>
-                        </CardContent>
-                    </Card>
-                    
-                    <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl">
-                        <CardContent className="p-6">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-gray-300 text-sm font-medium">Market Change</p>
-                                    <div className="flex items-center gap-1">
-                                        <p className={`text-2xl font-bold ${
-                                            marketStats.marketCapChange >= 0 ? 'text-green-400' : 'text-red-400'
-                                        }`}>
-                                            {marketStats.marketCapChange >= 0 ? '+' : ''}{marketStats.marketCapChange?.toFixed(2)}%
-                                        </p>
-                                        {marketStats.marketCapChange >= 0 ? (
-                                            <TrendingUp className="h-5 w-5 text-green-400" />
-                                        ) : (
-                                            <TrendingDown className="h-5 w-5 text-red-400" />
-                                        )}
-                                    </div>
+                            <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-800 opacity-80">
+                                <DollarSign className="h-5 w-5 text-white" />
+                            </div>
+                        </div>
+                    </TiltCard>
+
+                    <TiltCard intensity={6} className="glass-premium rounded-2xl border-neon-purple scan-card">
+                        <div className="p-6 flex items-center justify-between">
+                            <div>
+                                <p className="text-gray-400 text-xs font-medium uppercase tracking-wider mb-1">24h Volume</p>
+                                <p className="text-2xl font-black text-white">{formatCurrency(marketStats.totalVolume)}</p>
+                            </div>
+                            <div className="p-3 rounded-xl bg-gradient-to-br from-purple-600 to-purple-800 opacity-80">
+                                <BarChart3 className="h-5 w-5 text-white" />
+                            </div>
+                        </div>
+                    </TiltCard>
+
+                    <TiltCard intensity={6} className="glass-premium rounded-2xl scan-card" style={{ border: marketStats.marketCapChange >= 0 ? undefined : undefined }}>
+                        <div className="p-6 flex items-center justify-between">
+                            <div>
+                                <p className="text-gray-400 text-xs font-medium uppercase tracking-wider mb-1">Market Change</p>
+                                <div className="flex items-center gap-2">
+                                    <p className={`text-2xl font-black ${marketStats.marketCapChange >= 0 ? 'neon-green' : 'neon-red'}`}>
+                                        {marketStats.marketCapChange >= 0 ? '+' : ''}{marketStats.marketCapChange?.toFixed(2)}%
+                                    </p>
+                                    {marketStats.marketCapChange >= 0 ? (
+                                        <TrendingUp className="h-5 w-5 text-emerald-400" />
+                                    ) : (
+                                        <TrendingDown className="h-5 w-5 text-red-400" />
+                                    )}
                                 </div>
                             </div>
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </TiltCard>
                 </div>
 
                 {/* Search and Filters */}
@@ -266,7 +262,7 @@ export default function ProductsPage() {
 
                 <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
                     <div className="xl:col-span-3">
-                        <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl">
+                        <Card className="glass-premium rounded-3xl border-neon-blue scan-card">
                             <CardContent className="p-6">
                                 <div className="flex items-center justify-between mb-6">
                                     <h2 className="text-2xl font-bold text-white">Market Data</h2>
@@ -275,18 +271,30 @@ export default function ProductsPage() {
                                         <span className="text-green-400 text-sm font-medium">Live</span>
                                     </div>
                                 </div>
-                                <Markettable coins={currentCoins} />
-                                <Pagination
-                                    coinsPerPage={coinsPerPage}
-                                    totalCoins={filteredCoins.length}
-                                    paginate={paginate}
-                                    currentPage={currentPage}
-                                />
+                                {filteredCoins.length === 0 ? (
+                                    <div className="text-center py-16">
+                                        <p className="text-4xl mb-4">🔍</p>
+                                        <p className="text-white text-xl font-semibold mb-2">No results found</p>
+                                        <p className="text-gray-400">
+                                            Try a different name, symbol, or filter.
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <Markettable coins={currentCoins} />
+                                        <Pagination
+                                            coinsPerPage={coinsPerPage}
+                                            totalCoins={filteredCoins.length}
+                                            paginate={paginate}
+                                            currentPage={currentPage}
+                                        />
+                                    </>
+                                )}
                             </CardContent>
                         </Card>
                     </div>
                     <div>
-                        <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl">
+                        <Card className="glass-premium rounded-3xl border-neon-purple scan-card">
                             <CardContent className="p-6">
                                 <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                                     <Star className="h-5 w-5 text-yellow-400" />

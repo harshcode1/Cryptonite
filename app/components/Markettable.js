@@ -12,27 +12,30 @@ const MarketTable = ({ coins }) => {
   };
 
   const formatPercentage = (value) => {
-    return value >= 0 ? `+${value?.toFixed(2)}%` : `${value?.toFixed(2)}%`;
+    if (value == null || isNaN(value)) return <span className="text-gray-500">—</span>;
+    return value >= 0 ? `+${value.toFixed(2)}%` : `${value.toFixed(2)}%`;
   };
 
   const renderSparkline = (sparklineData) => {
     if (!sparklineData || !sparklineData.price) return null;
-    
+
     const prices = sparklineData.price;
+    if (prices.length < 2) return null;
+
     const width = 100;
     const height = 40;
     const max = Math.max(...prices);
     const min = Math.min(...prices);
     const range = max - min;
-    
+
     const points = prices.map((price, index) => {
       const x = (index / (prices.length - 1)) * width;
-      const y = height - ((price - min) / range) * height;
+      const y = range === 0 ? height / 2 : height - ((price - min) / range) * height;
       return `${x},${y}`;
     }).join(' ');
 
-    const isPositive = prices[prices.length - 1] > prices[0];
-    
+    const isPositive = prices[prices.length - 1] >= prices[0];
+
     return (
       <svg width={width} height={height} className="overflow-visible">
         <polyline
@@ -88,13 +91,13 @@ const MarketTable = ({ coins }) => {
             >
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                 <div className="flex items-center gap-2">
-                  <span className="font-medium">{index + 1}</span>
+                  <span className="font-medium">{coin.market_cap_rank ?? index + 1}</span>
                   <Star className="h-4 w-4 text-gray-500 hover:text-yellow-400 transition-colors duration-300 cursor-pointer" />
                 </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                <Link 
-                  href={`/coins/${coin.id}`} 
+                <Link
+                  href={`/coins/${coin.id}`}
                   className="flex items-center group-hover:text-blue-400 transition-colors duration-300"
                 >
                   <div className="relative">
@@ -105,7 +108,7 @@ const MarketTable = ({ coins }) => {
                       height={32}
                       className="rounded-full group-hover:scale-110 transition-transform duration-300"
                     />
-                    {index < 3 && (
+                    {coin.market_cap_rank <= 3 && (
                       <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-pulse"></div>
                     )}
                   </div>

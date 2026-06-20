@@ -76,15 +76,6 @@ const BuyPage = () => {
       });
       setCoinPrices(prices);
       
-      // Log cache/fallback info
-      if (response.data.cached) {
-        console.log(`📦 Coins loaded from cache (age: ${response.data.age}s)`);
-      } else if (response.data.fallback) {
-        console.log('⚠️ Using fallback coins data due to rate limiting');
-      } else {
-        console.log('🆕 Fresh coins data loaded');
-      }
-      
     } catch (error) {
       console.error('Error fetching coins:', error);
       
@@ -101,7 +92,6 @@ const BuyPage = () => {
       });
       setCoinPrices(fallbackPrices);
       
-      console.log('⚠️ Using local fallback coins due to API error');
     } finally {
       setLoading(false);
     }
@@ -231,7 +221,7 @@ const BuyPage = () => {
         const existingHolding = existingHoldings[existingHoldingIndex];
         const totalQuantity = existingHolding.quantity + cryptoQuantity;
         const totalSpent = existingHolding.totalSpentINR + purchaseAmount;
-        const avgPrice = totalSpent / totalQuantity / 83; // Average price in USD
+        const avgPrice = (totalSpent / 83) / totalQuantity; // Average price in USD
           existingHoldings[existingHoldingIndex] = {
           ...existingHolding,
           quantity: totalQuantity,
@@ -268,7 +258,7 @@ const BuyPage = () => {
         success: false,
         message: 'Transaction failed. Please try again.'
       });
-      console.error('Purchase error:', error);
+      console.error('Purchase error:', error.message);
     } finally {
       setBuying(false);
     }
@@ -346,7 +336,7 @@ const BuyPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="flex items-center gap-3">
           <RefreshCw className="h-6 w-6 text-blue-400 animate-spin" />
           <span className="text-white text-lg">Loading cryptocurrencies...</span>
@@ -356,7 +346,7 @@ const BuyPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-12">
         {/* Header */}
         <div className="text-center mb-12">

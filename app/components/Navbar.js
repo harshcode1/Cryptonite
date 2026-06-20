@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Menu, X, TrendingUp, Zap } from 'lucide-react';
+import { Menu, X, Zap, Wallet } from 'lucide-react';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -9,129 +9,128 @@ const Navbar = () => {
   const [walletBalance, setWalletBalance] = useState(0);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
+    const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
 
     const updateWalletBalance = () => {
-      const savedBalance = localStorage.getItem('walletBalance');
-      if (savedBalance) {
-        setWalletBalance(parseFloat(savedBalance));
+      const saved = localStorage.getItem('walletBalance');
+      if (saved) {
+        setWalletBalance(parseFloat(saved));
       } else {
         localStorage.setItem('walletBalance', '100000');
         setWalletBalance(100000);
       }
     };
-
     updateWalletBalance();
 
-    const handleStorageChange = (e) => {
-      if (e.key === 'walletBalance') {
-        updateWalletBalance();
-      }
-    };
+    const handleStorageChange = (e) => { if (e.key === 'walletBalance') updateWalletBalance(); };
+    const handleWalletUpdated = (e) => setWalletBalance(e.detail.newBalance);
 
     window.addEventListener('storage', handleStorageChange);
-
+    window.addEventListener('walletUpdated', handleWalletUpdated);
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('walletUpdated', handleWalletUpdated);
     };
   }, []);
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
+  const formatINR = (amount) =>
+    new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 
   return (
-    <nav
-      className={`sticky top-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? 'bg-slate-900/80 backdrop-blur-xl border-b border-white/10 shadow-2xl'
-          : 'bg-slate-900/60 backdrop-blur-md'
-      }`}
-    >
+    <nav className={`sticky top-0 z-50 transition-all duration-500 ${
+      scrolled
+        ? 'bg-[rgba(8,12,30,0.85)] backdrop-blur-xl border-b border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]'
+        : 'bg-[rgba(8,12,30,0.5)] backdrop-blur-md border-b border-white/5'
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-center">
-            <Link href="/" className="flex items-center group">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
-                <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 p-2 rounded-lg">
-                  <Zap className="h-6 w-6 text-white" />
-                </div>
+
+          {/* Logo */}
+          <Link href="/" className="flex items-center group">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-300" />
+              <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 p-2 rounded-lg">
+                <Zap className="h-5 w-5 text-white" />
               </div>
-              <span className="ml-3 text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                Cryptonite
-              </span>
-            </Link>
-          </div>
-          <div className="hidden md:flex items-center gap-8">
+            </div>
+            <span className="ml-3 text-xl font-black bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent tracking-tight">
+              Cryptonite
+            </span>
+          </Link>
+
+          {/* Desktop nav */}
+          <div className="hidden md:flex items-center gap-2">
+            {[
+              { href: '/ProductsPage', label: 'Markets' },
+              { href: '/AboutPage',    label: 'About'   },
+              { href: '/portfolio',    label: 'Holdings' },
+            ].map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                className="px-4 py-2 text-white/70 hover:text-white hover:bg-white/8 rounded-xl text-sm font-medium transition-all duration-200"
+              >
+                {label}
+              </Link>
+            ))}
+
+            {/* Wallet balance pill */}
             <Link
-              href="/ProductsPage"
-              className="text-white/80 hover:text-white transition-colors duration-300 text-lg"
+              href="/portfolio"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-200"
             >
-              Markets
+              <Wallet className="h-4 w-4 text-emerald-400" />
+              <span className="text-emerald-400 text-sm font-bold font-mono">{formatINR(walletBalance)}</span>
             </Link>
-            <Link
-              href="/AboutPage"
-              className="text-white/80 hover:text-white transition-colors duration-300 text-lg"
-            >
-              About
-            </Link>
+
             <Link
               href="/buy"
-              className="px-5 py-2 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 transition-all duration-300 text-lg font-semibold"
+              className="px-5 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white rounded-xl text-sm font-bold shadow-lg hover:shadow-[0_0_20px_rgba(99,102,241,0.4)] transition-all duration-300 hover:scale-105"
             >
               Buy Crypto
             </Link>
-            <Link
-              href="/portfolio"
-              className="text-white/80 hover:text-white transition-colors duration-300 text-lg"
-            >
-              Holdings
-            </Link>
           </div>
+
+          {/* Mobile hamburger */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-all duration-300"
+            className="md:hidden p-2 rounded-xl bg-white/8 hover:bg-white/15 border border-white/10 transition-all duration-200"
           >
-            {isMenuOpen ? <X className="h-6 w-6 text-white" /> : <Menu className="h-6 w-6 text-white" />}
+            {isMenuOpen ? <X className="h-5 w-5 text-white" /> : <Menu className="h-5 w-5 text-white" />}
           </button>
         </div>
       </div>
+
+      {/* Mobile menu */}
       {isMenuOpen && (
-        <div className="md:hidden bg-slate-900/90 backdrop-blur-md shadow-lg">
-          <div className="flex flex-col items-center gap-4 py-4">
-            <Link
-              href="/ProductsPage"
-              className="text-white/80 hover:text-white transition-colors duration-300 text-lg"
-            >
-              Markets
-            </Link>
-            <Link
-              href="/AboutPage"
-              className="text-white/80 hover:text-white transition-colors duration-300 text-lg"
-            >
-              About
-            </Link>
+        <div className="md:hidden border-t border-white/8 bg-[rgba(8,12,30,0.95)] backdrop-blur-xl">
+          <div className="flex flex-col gap-1 p-4">
+            {[
+              { href: '/ProductsPage', label: 'Markets'  },
+              { href: '/AboutPage',    label: 'About'    },
+              { href: '/portfolio',    label: 'Holdings' },
+            ].map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                onClick={() => setIsMenuOpen(false)}
+                className="px-4 py-3 text-white/80 hover:text-white hover:bg-white/8 rounded-xl text-base font-medium transition-all duration-200"
+              >
+                {label}
+              </Link>
+            ))}
+            <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-white/5 border border-white/10 mt-1">
+              <Wallet className="h-4 w-4 text-emerald-400" />
+              <span className="text-emerald-400 text-sm font-bold font-mono">{formatINR(walletBalance)}</span>
+            </div>
             <Link
               href="/buy"
-              className="px-5 py-2 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 transition-all duration-300 text-lg font-semibold"
+              onClick={() => setIsMenuOpen(false)}
+              className="mt-1 px-5 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl text-base font-bold text-center transition-all duration-300"
             >
               Buy Crypto
-            </Link>
-            <Link
-              href="/portfolio"
-              className="text-white/80 hover:text-white transition-colors duration-300 text-lg"
-            >
-              Holdings
             </Link>
           </div>
         </div>

@@ -2,6 +2,204 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   ANIMATED BACKGROUND SYSTEM
+   ============================================================ */
+.bg-orbs {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.13;
+}
+.bg-orb-1 {
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, #3b82f6, #1d4ed8, transparent);
+  top: -250px; left: -200px;
+  animation: orb1 16s ease-in-out infinite;
+}
+.bg-orb-2 {
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, #a855f7, #7c3aed, transparent);
+  top: 25%; right: -180px;
+  animation: orb2 20s ease-in-out infinite;
+}
+.bg-orb-3 {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, #06b6d4, #0891b2, transparent);
+  bottom: -120px; left: 28%;
+  animation: orb3 24s ease-in-out infinite;
+}
+.bg-orb-4 {
+  width: 450px; height: 450px;
+  background: radial-gradient(circle, #ec4899, #db2777, transparent);
+  top: 55%; left: -100px;
+  animation: orb4 18s ease-in-out infinite;
+}
+@keyframes orb1 {
+  0%,100%{transform:translate(0,0) scale(1)}
+  25%{transform:translate(160px,120px) scale(1.1)}
+  50%{transform:translate(80px,240px) scale(0.95)}
+  75%{transform:translate(-60px,80px) scale(1.05)}
+}
+@keyframes orb2 {
+  0%,100%{transform:translate(0,0) scale(1)}
+  33%{transform:translate(-120px,100px) scale(1.1)}
+  66%{transform:translate(70px,-120px) scale(0.9)}
+}
+@keyframes orb3 {
+  0%,100%{transform:translate(0,0) scale(1)}
+  50%{transform:translate(-140px,-110px) scale(1.2)}
+}
+@keyframes orb4 {
+  0%,100%{transform:translate(0,0) scale(1)}
+  40%{transform:translate(120px,-90px) scale(1.1)}
+  80%{transform:translate(60px,60px) scale(0.9)}
+}
+
+/* ============================================================
+   CYBER GRID OVERLAY
+   ============================================================ */
+.cyber-grid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(59,130,246,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59,130,246,0.025) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* ============================================================
+   PRICE TICKER
+   ============================================================ */
+@keyframes ticker-scroll {
+  0%  { transform: translateX(0); }
+  100%{ transform: translateX(-50%); }
+}
+.ticker-track {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: ticker-scroll 45s linear infinite;
+}
+.ticker-track:hover { animation-play-state: paused; }
+
+/* ============================================================
+   HERO TEXT ANIMATIONS
+   ============================================================ */
+@keyframes hero-in {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero-l1 { animation: hero-in 0.7s cubic-bezier(.22,1,.36,1) forwards 0.1s; opacity:0; }
+.hero-l2 { animation: hero-in 0.7s cubic-bezier(.22,1,.36,1) forwards 0.3s; opacity:0; }
+.hero-l3 { animation: hero-in 0.7s cubic-bezier(.22,1,.36,1) forwards 0.5s; opacity:0; }
+.hero-l4 { animation: hero-in 0.7s cubic-bezier(.22,1,.36,1) forwards 0.7s; opacity:0; }
+.hero-l5 { animation: hero-in 0.7s cubic-bezier(.22,1,.36,1) forwards 0.9s; opacity:0; }
+
+/* ============================================================
+   SHIMMER / ANIMATED GRADIENT TEXT
+   ============================================================ */
+@keyframes text-shimmer {
+  0%   { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+.text-shimmer {
+  background: linear-gradient(
+    90deg,
+    #60a5fa 0%, #a78bfa 20%, #f472b6 40%,
+    #34d399 60%, #60a5fa 80%, #a78bfa 100%
+  );
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: text-shimmer 5s linear infinite;
+}
+
+/* ============================================================
+   3D FLOAT ANIMATIONS
+   ============================================================ */
+@keyframes float3d-a {
+  0%,100%{ transform: translateY(0px)   rotateX(0deg)   rotateY(0deg); }
+  25%    { transform: translateY(-18px) rotateX(6deg)   rotateY(8deg); }
+  50%    { transform: translateY(-8px)  rotateX(-3deg)  rotateY(-6deg); }
+  75%    { transform: translateY(-22px) rotateX(4deg)   rotateY(10deg); }
+}
+@keyframes float3d-b {
+  0%,100%{ transform: translateY(0px)   rotateX(0deg)   rotateY(0deg); }
+  30%    { transform: translateY(-22px) rotateX(-6deg)  rotateY(-10deg); }
+  60%    { transform: translateY(-12px) rotateX(5deg)   rotateY(7deg); }
+}
+@keyframes float3d-c {
+  0%,100%{ transform: translateY(0px)   rotateX(0deg) rotateY(0deg); }
+  40%    { transform: translateY(-16px) rotateX(7deg) rotateY(-8deg); }
+  80%    { transform: translateY(-20px) rotateX(-4deg) rotateY(9deg); }
+}
+.float-coin-1 { animation: float3d-a 7s ease-in-out infinite; transform-style: preserve-3d; }
+.float-coin-2 { animation: float3d-b 9s ease-in-out infinite; transform-style: preserve-3d; }
+.float-coin-3 { animation: float3d-c 8s ease-in-out infinite; transform-style: preserve-3d; }
+
+/* ============================================================
+   NEON TEXT + BORDERS
+   ============================================================ */
+.neon-green  { color:#34d399; text-shadow:0 0 8px rgba(52,211,153,.8),0 0 20px rgba(52,211,153,.4); }
+.neon-red    { color:#f87171; text-shadow:0 0 8px rgba(248,113,113,.8),0 0 20px rgba(248,113,113,.4); }
+.neon-blue   { color:#60a5fa; text-shadow:0 0 8px rgba(96,165,250,.8),0 0 20px rgba(96,165,250,.4); }
+.neon-purple { color:#c084fc; text-shadow:0 0 8px rgba(192,132,252,.8),0 0 20px rgba(192,132,252,.4); }
+.neon-cyan   { color:#22d3ee; text-shadow:0 0 8px rgba(34,211,238,.8),0 0 20px rgba(34,211,238,.4); }
+
+.border-neon-blue   { border-color:rgba(96,165,250,.35); box-shadow:0 0 20px rgba(59,130,246,.12),inset 0 0 20px rgba(59,130,246,.05); }
+.border-neon-purple { border-color:rgba(192,132,252,.35); box-shadow:0 0 20px rgba(168,85,247,.12),inset 0 0 20px rgba(168,85,247,.05); }
+.border-neon-cyan   { border-color:rgba(34,211,238,.35); box-shadow:0 0 20px rgba(6,182,212,.12),inset 0 0 20px rgba(6,182,212,.05); }
+.border-neon-green  { border-color:rgba(52,211,153,.35); box-shadow:0 0 20px rgba(16,185,129,.12),inset 0 0 20px rgba(16,185,129,.05); }
+
+/* ============================================================
+   GLASS PREMIUM CARD
+   ============================================================ */
+.glass-premium {
+  background: rgba(8,12,30,0.65);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,0.07);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+/* ============================================================
+   SCAN LINE (hover effect for cards)
+   ============================================================ */
+@keyframes scan-line {
+  0%   { transform: translateY(-100%); opacity: 0.6; }
+  100% { transform: translateY(400%); opacity: 0; }
+}
+.scan-card { position: relative; overflow: hidden; }
+.scan-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 30%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 100%);
+  transform: translateY(-100%);
+  pointer-events: none;
+  transition: none;
+}
+.scan-card:hover::after { animation: scan-line 0.6s ease forwards; }
+
+/* ============================================================
+   HERO DOT GRID
+   ============================================================ */
+.hero-dots {
+  background-image: radial-gradient(circle, rgba(59,130,246,0.12) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
 @layer components {  .nav-link {
     @apply text-slate-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium
     transition-colors duration-200;
@@ -152,23 +350,12 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
-  /* Force dark theme and prevent white backgrounds */
+  /* Force dark theme */
   body {
-    background: linear-gradient(135deg, #0f172a 0%, #581c87 50%, #0f172a 100%) !important;
     color: #f8fafc !important;
   }
   
-  /* Override any accidental white backgrounds */
-  .bg-white {
-    background-color: rgba(15, 23, 42, 0.9) !important;
-  }
-  
-  /* Ensure text is always visible */
-  * {
-    color: inherit;
-  }
-  
-  /* Fix any text that might be too dark */
+  /* Fix any accidentally dark text in the app shell */
   .text-black,
   .text-gray-900,
   .text-gray-800 {
