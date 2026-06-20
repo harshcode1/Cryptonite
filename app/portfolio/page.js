@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import { Card, CardContent } from '../components/card';
 import { 
   BarChart3, 
@@ -49,73 +50,45 @@ const Portfolio = () => {
       window.removeEventListener('storage', handleStorageChange);
       clearInterval(interval);
     };
-  }, []);  const fetchCurrentPrices = useCallback(async () => {
+  }, []);
+
+  const fetchCurrentPrices = useCallback(async () => {
     if (holdings.length === 0) return;
 
     try {
       const coinIds = holdings.map(holding => holding.coinId).join(',');
-      console.log('🔍 Fetching prices for coin IDs:', coinIds);
-      
       const response = await axios.get(`/api/price`, {
-        params: {
-          ids: coinIds,
-          vs_currencies: 'usd',
-          include_24hr_change: true
-        }
+        params: { ids: coinIds, vs_currencies: 'usd', include_24hr_change: true },
       });
-      
-      console.log('📊 Price API response:', response.data);
-      
-      // Check if response data is valid
+
       if (response.data && typeof response.data === 'object') {
-        // Validate that we got prices for all requested coins
-        const requestedCoins = coinIds.split(',');
-        const receivedCoins = Object.keys(response.data);
-        
-        console.log('📋 Requested coins:', requestedCoins);
-        console.log('📋 Received prices for:', receivedCoins);
-        
-        // Check for missing prices and add fallback prices from coins.json if available
         const enhancedPrices = { ...response.data };
-        
-        for (const coinId of requestedCoins) {
+
+        // Fallback: fetch missing prices from the coins endpoint
+        for (const coinId of coinIds.split(',')) {
           if (!enhancedPrices[coinId]) {
-            console.warn(`⚠️ Missing price for ${coinId}, attempting fallback from coins data`);
-            
-            // Try to get price from the coins.json data via our coins API
             try {
-              const coinsResponse = await axios.get('/api/coins', {
-                params: { per_page: 100 }
-              });
-              
+              const coinsResponse = await axios.get('/api/coins', { params: { per_page: 100 } });
               const coinsData = coinsResponse.data.data || coinsResponse.data;
               const coinData = coinsData.find(coin => coin.id === coinId);
-              
-              if (coinData && coinData.current_price) {
+              if (coinData?.current_price) {
                 enhancedPrices[coinId] = {
                   usd: coinData.current_price,
-                  usd_24h_change: coinData.price_change_percentage_24h || 0
+                  usd_24h_change: coinData.price_change_percentage_24h || 0,
                 };
-                console.log(`✅ Found fallback price for ${coinId}: $${coinData.current_price}`);
               }
             } catch (fallbackError) {
-              console.error(`❌ Failed to get fallback price for ${coinId}:`, fallbackError);
+              console.error(`Failed to get fallback price for ${coinId}:`, fallbackError);
             }
           }
         }
-        
+
         setCurrentPrices(enhancedPrices);
-        console.log('💰 Final price data loaded for', Object.keys(enhancedPrices).length, 'coins');
-      } else {
-        console.warn('⚠️ Invalid price data received from API');
       }
     } catch (error) {
-      console.error('❌ Error fetching current prices:', error);
-      
-      // Don't update currentPrices if API fails - keep existing data
-      console.log('⚠️ Using existing price data due to API error');
+      console.error('Error fetching current prices:', error);
     }
-  }, [holdings]); // Remove currentPrices dependency to avoid infinite loops
+  }, [holdings]);
 
   useEffect(() => {
     if (holdings.length > 0) {
@@ -149,55 +122,39 @@ const Portfolio = () => {
     if (holdings.length > 0 && Object.keys(currentPrices).length > 0) {
       calculatePortfolioStats();
     }
-  }, [holdings, currentPrices, calculatePortfolioStats]);  const loadPortfolioData = () => {
+  }, [holdings, currentPrices, calculatePortfolioStats]);
+
+  const loadPortfolioData = () => {
     const savedHoldings = localStorage.getItem('holdings');
     const savedBalance = localStorage.getItem('walletBalance');
-    
-    console.log('📁 Raw holdings from localStorage:', savedHoldings);
-    
-    let holdings = savedHoldings ? JSON.parse(savedHoldings) : [];
-    
-    // Normalize holdings data structure (handle both old and new formats)
-    holdings = holdings.map(holding => {
-      console.log('🔧 Processing holding:', holding);
-      
+
+    let loaded = savedHoldings ? JSON.parse(savedHoldings) : [];
+
+    // Normalize holdings to handle old field names
+    loaded = loaded.map(holding => {
       const normalized = {
         ...holding,
         name: holding.name || holding.coinName || 'Unknown',
         symbol: holding.symbol || holding.coinSymbol || 'N/A',
-        avgBuyPrice: holding.avgBuyPrice || holding.priceAtBuy || 0
+        avgBuyPrice: holding.avgBuyPrice || holding.priceAtBuy || 0,
       };
-      
-      // Clean up old properties to avoid confusion
       delete normalized.coinName;
       delete normalized.coinSymbol;
       delete normalized.priceAtBuy;
-      
-      console.log('✅ Normalized holding:', normalized);
       return normalized;
     });
-    
-    // Filter out any malformed holdings
-    holdings = holdings.filter(holding => 
-      holding && 
-      holding.coinId && 
-      holding.symbol && 
-      holding.name && 
-      typeof holding.quantity === 'number' &&
-      holding.quantity > 0
+
+    // Drop malformed entries
+    loaded = loaded.filter(h =>
+      h && h.coinId && h.symbol && h.name &&
+      typeof h.quantity === 'number' && h.quantity > 0
     );
-    
-    // Save the normalized data back to localStorage
-    if (holdings.length > 0) {
-      localStorage.setItem('holdings', JSON.stringify(holdings));
+
+    if (loaded.length > 0) {
+      localStorage.setItem('holdings', JSON.stringify(loaded));
     }
-    
-    console.log('📊 Loaded', holdings.length, 'valid holdings:');
-    holdings.forEach((holding, index) => {
-      console.log(`  ${index + 1}. ${holding.name} (${holding.coinId}): ${holding.quantity} @ $${holding.avgBuyPrice}`);
-    });
-    
-    setHoldings(holdings);
+
+    setHoldings(loaded);
     setWalletBalance(savedBalance ? parseFloat(savedBalance) : 100000);
     setLoading(false);
   };
@@ -227,29 +184,19 @@ const Portfolio = () => {
 
   const forceRefreshPrices = async () => {
     if (holdings.length === 0) return;
-    
+
     try {
       const coinIds = holdings.map(holding => holding.coinId).join(',');
-      console.log('🔥 FORCE REFRESH: Fetching fresh prices for:', coinIds);
-      
-      // Add a cache-busting parameter
       const response = await axios.get(`/api/price`, {
-        params: {
-          ids: coinIds,
-          vs_currencies: 'usd',
-          include_24hr_change: true,
-          _t: Date.now() // Cache buster
-        }
+        params: { ids: coinIds, vs_currencies: 'usd', include_24hr_change: true },
+        headers: { 'x-force-refresh': '1' },
       });
-      
-      console.log('🔥 FORCE REFRESH: Raw API response:', response.data);
-      
+
       if (response.data && typeof response.data === 'object') {
         setCurrentPrices(response.data);
-        console.log('🔥 FORCE REFRESH: Updated current prices');
       }
     } catch (error) {
-      console.error('🔥 FORCE REFRESH: Error:', error);
+      console.error('Force refresh error:', error);
     }
   };
 
@@ -312,7 +259,7 @@ const Portfolio = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
+    <div className="min-h-screen p-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
@@ -406,7 +353,7 @@ const Portfolio = () => {
             <RefreshCw className="h-5 w-5" />
             Refresh Portfolio
           </button>
-          
+
           <button
             onClick={refreshPrices}
             className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors duration-300"
@@ -414,7 +361,7 @@ const Portfolio = () => {
             <RefreshCw className="h-5 w-5" />
             Refresh Prices
           </button>
-          
+
           <button
             onClick={forceRefreshPrices}
             className="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-colors duration-300"
@@ -422,35 +369,7 @@ const Portfolio = () => {
             <RefreshCw className="h-5 w-5" />
             Force Refresh Prices
           </button>
-          
-          <button
-            onClick={() => {
-              console.log('🔍 DEBUG INFO:');
-              console.log('Holdings:', holdings);
-              console.log('Current Prices:', currentPrices);
-              console.log('LocalStorage Holdings:', localStorage.getItem('holdings'));
-              console.log('LocalStorage Balance:', localStorage.getItem('walletBalance'));
-              alert('Check console for debug info');
-            }}
-            className="flex items-center gap-2 px-6 py-3 bg-yellow-600 hover:bg-yellow-700 text-white rounded-xl transition-colors duration-300"
-          >
-            🐛 Debug Info
-          </button>
-          
-          <button
-            onClick={() => {
-              if (window.confirm('Clear all holdings for testing? (keeps wallet balance)')) {
-                localStorage.removeItem('holdings');
-                setHoldings([]);
-                setCurrentPrices({});
-                console.log('🧹 Holdings cleared for testing');
-              }
-            }}
-            className="flex items-center gap-2 px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-xl transition-colors duration-300"
-          >
-            🧹 Clear Holdings (Test)
-          </button>
-          
+
           {holdings.length > 0 && (
             <>
               <button
@@ -460,7 +379,7 @@ const Portfolio = () => {
                 <Download className="h-5 w-5" />
                 Export CSV
               </button>
-              
+
               <button
                 onClick={resetPortfolio}
                 className="flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-colors duration-300"
@@ -516,11 +435,22 @@ const Portfolio = () => {
                       return (
                         <tr key={index} className="border-b border-slate-700/50 hover:bg-slate-700/20 transition-colors">
                           <td className="py-4 px-2">
-                            <div className="flex items-center gap-3">                              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                                <span className="text-white text-sm font-bold">
-                                  {holding.symbol?.charAt(0)?.toUpperCase() || '?'}
-                                </span>
-                              </div>
+                            <div className="flex items-center gap-3">
+                              {holding.coinImage ? (
+                                <Image
+                                  src={holding.coinImage}
+                                  alt={holding.name || holding.symbol}
+                                  width={32}
+                                  height={32}
+                                  className="rounded-full"
+                                />
+                              ) : (
+                                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                                  <span className="text-white text-sm font-bold">
+                                    {holding.symbol?.charAt(0)?.toUpperCase() || '?'}
+                                  </span>
+                                </div>
+                              )}
                               <div>
                                 <p className="text-white font-semibold">{holding.name || 'Unknown'}</p>
                                 <p className="text-gray-400 text-sm">{holding.symbol?.toUpperCase() || 'N/A'}</p>

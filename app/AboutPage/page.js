@@ -17,7 +17,7 @@ import {
 
 const AboutPage = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen">
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20"></div>
@@ -52,7 +52,7 @@ const AboutPage = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl hover:scale-105 transition-all duration-500">
+            <Card className="glass-premium rounded-3xl border-neon-blue scan-card hover:scale-105 transition-all duration-500">
               <CardContent className="p-8 text-center">
                 <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-4 rounded-full w-16 h-16 mx-auto mb-6 flex items-center justify-center">
                   <TrendingUp className="h-8 w-8 text-white" />
@@ -64,7 +64,7 @@ const AboutPage = () => {
               </CardContent>
             </Card>
 
-            <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl hover:scale-105 transition-all duration-500">
+            <Card className="glass-premium rounded-3xl border-neon-blue scan-card hover:scale-105 transition-all duration-500">
               <CardContent className="p-8 text-center">
                 <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-4 rounded-full w-16 h-16 mx-auto mb-6 flex items-center justify-center">
                   <Shield className="h-8 w-8 text-white" />
@@ -76,7 +76,7 @@ const AboutPage = () => {
               </CardContent>
             </Card>
 
-            <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl hover:scale-105 transition-all duration-500">
+            <Card className="glass-premium rounded-3xl border-neon-blue scan-card hover:scale-105 transition-all duration-500">
               <CardContent className="p-8 text-center">
                 <div className="bg-gradient-to-r from-purple-500 to-pink-600 p-4 rounded-full w-16 h-16 mx-auto mb-6 flex items-center justify-center">
                   <Zap className="h-8 w-8 text-white" />
@@ -94,7 +94,7 @@ const AboutPage = () => {
       {/* History Section */}
       <section className="py-20">
         <div className="container mx-auto px-4">
-          <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl max-w-6xl mx-auto">
+          <Card className="glass-premium rounded-3xl border-neon-purple max-w-6xl mx-auto">
             <CardContent className="p-12">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div>

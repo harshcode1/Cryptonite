@@ -45,32 +45,53 @@ const CoinPage = () => {
     const { id } = useParams();
     const [coin, setCoin] = useState(null);
     const [chartData, setChartData] = useState(null);
+    const [chartLoading, setChartLoading] = useState(false);
     const [activeTab, setActiveTab] = useState('7');
-    const [loading, setLoading] = useState(true);    useEffect(() => {
-        const fetchData = async () => {
+    const [loading, setLoading] = useState(true);
+
+    // Fetch coin details — only reruns when the coin id changes
+    useEffect(() => {
+        const fetchCoinData = async () => {
             try {
-                // Use cached API routes instead of direct CoinGecko calls
-                const [coinResponse, chartResponse] = await Promise.all([
-                    axios.get(`/api/coin/${id}`),
-                    axios.get(`/api/chart/${id}?days=7&vs_currency=usd`)
-                ]);
-                
-                // Handle the cached API response format
-                const coinData = coinResponse.data.data || coinResponse.data;
-                const chartData = chartResponse.data.data || chartResponse.data;
-                
-                setCoin(coinData);
-                
+                setLoading(true);
+                const coinResponse = await axios.get(`/api/coin/${id}`);
+                setCoin(coinResponse.data.data || coinResponse.data);
+                setLoading(false);
+            } catch (error) {
+                console.error('Error fetching coin data:', error);
+                setLoading(false);
+            }
+        };
+        fetchCoinData();
+    }, [id]);
+
+    // Fetch chart data — reruns when coin id OR selected time period changes
+    useEffect(() => {
+        if (!id) return;
+
+        const controller = new AbortController();
+
+        const formatLabel = (timestamp) => {
+            const date = new Date(timestamp);
+            if (activeTab === '1') {
+                return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+            }
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        };
+
+        const fetchChartData = async () => {
+            try {
+                setChartLoading(true);
+                const chartResponse = await axios.get(`/api/chart/${id}?days=${activeTab}&vs_currency=usd`, {
+                    signal: controller.signal,
+                });
+                const raw = chartResponse.data.data || chartResponse.data;
+
                 setChartData({
-                    labels: chartData.prices.map(price => 
-                        new Date(price[0]).toLocaleDateString('en-US', { 
-                            month: 'short', 
-                            day: 'numeric' 
-                        })
-                    ),
+                    labels: raw.prices.map(price => formatLabel(price[0])),
                     datasets: [{
                         label: 'Price (USD)',
-                        data: chartData.prices.map(price => price[1]),
+                        data: raw.prices.map(price => price[1]),
                         borderColor: '#3b82f6',
                         backgroundColor: 'rgba(59, 130, 246, 0.1)',
                         borderWidth: 3,
@@ -83,23 +104,17 @@ const CoinPage = () => {
                         pointHoverRadius: 6,
                     }]
                 });
-                
-                // Log cache info if available
-                if (coinResponse.data.cached) {
-                    console.log(`📦 Coin data loaded from cache (age: ${coinResponse.data.age}s)`);
-                }
-                if (chartResponse.data.cached) {
-                    console.log(`📦 Chart data loaded from cache (age: ${chartResponse.data.age}s)`);
-                }
-                
-                setLoading(false);
+                setChartLoading(false);
             } catch (error) {
-                console.error('Error fetching data:', error);
-                setLoading(false);
+                if (axios.isCancel(error)) return;
+                console.error('Error fetching chart data:', error);
+                setChartLoading(false);
             }
         };
-        fetchData();
-    }, [id]);
+        fetchChartData();
+
+        return () => controller.abort();
+    }, [id, activeTab]);
 
     const formatCurrency = (value) => {
         if (value >= 1e12) return `$${(value / 1e12).toFixed(2)}T`;
@@ -114,7 +129,7 @@ const CoinPage = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+            <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-400 mx-auto mb-4"></div>
                     <p className="text-white text-xl font-semibold">Loading coin data...</p>
@@ -125,7 +140,7 @@ const CoinPage = () => {
 
     if (!coin) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+            <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
                     <p className="text-white text-xl">Coin not found</p>
                 </div>
@@ -134,10 +149,10 @@ const CoinPage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <div className="min-h-screen">
             <div className="container mx-auto px-4 py-8">
                 {/* Header */}
-                <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl mb-8">
+                <Card className="glass-premium rounded-3xl border-0 mb-8">
                     <CardContent className="p-8">
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                             <div className="flex items-center gap-4">
@@ -174,7 +189,7 @@ const CoinPage = () => {
                                         <TrendingDown className="h-5 w-5 text-red-400" />
                                     )}
                                     <p className={`text-lg font-semibold ${
-                                        coin.market_data?.price_change_percentage_24h >= 0 ? 'text-green-400' : 'text-red-400'
+                                        coin.market_data?.price_change_percentage_24h >= 0 ? 'neon-green' : 'neon-red'
                                     }`}>
                                         {formatPercentage(coin.market_data?.price_change_percentage_24h)} (24h)
                                     </p>
@@ -185,7 +200,7 @@ const CoinPage = () => {
                 </Card>
 
                 {/* Chart */}
-                <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl mb-8">
+                <Card className="glass-premium rounded-3xl border-0 mb-8">
                     <CardContent className="p-8">
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-2xl font-bold text-white">Price Chart</h2>
@@ -195,9 +210,14 @@ const CoinPage = () => {
                             </div>
                         </div>
                         
-                        {chartData && (
+                        {chartLoading && (
+                            <div className="h-96 mb-6 flex items-center justify-center">
+                                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-400"></div>
+                            </div>
+                        )}
+                        {!chartLoading && chartData && (
                             <div className="h-96 mb-6">
-                                <Line 
+                                <Line
                                     data={chartData} 
                                     options={{ 
                                         responsive: true, 
